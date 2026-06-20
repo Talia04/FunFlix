@@ -5,6 +5,7 @@ import { Blobert } from "@/components/Blobert/Blobert";
 import { BlobertParticles } from "@/components/Blobert/BlobertParticles";
 import { DigestTrail } from "@/components/animations/DigestTrail";
 import { FlyingInput } from "@/components/animations/FlyingInput";
+import { JudgmentBurp } from "@/components/animations/JudgmentBurp";
 import { digestLines } from "@/data/roasts";
 import { signupFields } from "@/data/fieldRules";
 import { createJudgment, maskPassword } from "@/lib/scoring";
@@ -48,6 +49,7 @@ export function SignupController() {
   const completed = judgments.map((judgment) => judgment.fieldId);
   const isComplete = currentIndex >= signupFields.length;
   const digestLine = digestLines[(currentIndex + value.length) % digestLines.length];
+  const latestJudgment = judgments[judgments.length - 1];
 
   const speech = useMemo(() => {
     if (isComplete) {
@@ -177,6 +179,9 @@ export function SignupController() {
           </Blobert>
           {stage === "digesting" ? <DigestTrail /> : null}
           {stage === "swallowing" ? <FlyingInput text={flyingText} /> : null}
+          {stage === "judging" && latestJudgment ? (
+            <JudgmentBurp key={`${latestJudgment.fieldId}-${latestJudgment.displayValue}`} message={latestJudgment.message} />
+          ) : null}
         </div>
         <ProgressSteps currentFieldId={currentField?.id} completed={completed as SignupFieldId[]} />
       </div>

@@ -10,15 +10,16 @@ type BlobertMouthProps = {
 
 export function BlobertMouth({ stage, children }: BlobertMouthProps) {
   const open = stage === "typing" || stage === "swallowing" || stage === "idle";
+  const swallowing = stage === "swallowing";
 
   return (
     <motion.div
       className="absolute left-1/2 top-[195px] z-30 flex h-28 w-[270px] -translate-x-1/2 items-center justify-center rounded-[48px] border-4 border-ink bg-[#321143] p-4 shadow-inner sm:top-[235px] sm:w-[320px]"
       animate={{
-        scaleX: stage === "chewing" ? [1, 0.94, 1.05, 1] : open ? 1 : 0.92,
-        scaleY: stage === "chewing" ? [1, 0.7, 1.12, 0.9] : open ? 1 : 0.78,
+        scaleX: stage === "chewing" ? [1, 0.94, 1.05, 1] : swallowing ? 1.08 : open ? 1 : 0.92,
+        scaleY: stage === "chewing" ? [1, 0.7, 1.12, 0.9] : swallowing ? 1.35 : open ? 1 : 0.78,
       }}
-      transition={{ duration: stage === "chewing" ? 0.4 : 0.2, repeat: stage === "chewing" ? Infinity : 0 }}
+      transition={{ duration: stage === "chewing" ? 0.4 : swallowing ? 0.35 : 0.2, repeat: stage === "chewing" ? Infinity : 0 }}
     >
       <div className="absolute -top-1 left-9 flex gap-4">
         {[0, 1, 2, 3, 4].map((tooth) => (
