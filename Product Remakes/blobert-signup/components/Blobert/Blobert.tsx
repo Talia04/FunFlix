@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { AnimationStage, BlobertMood } from "@/types/blobert";
+import type { AnimationStage, BlobertMood, SignupFieldId } from "@/types/blobert";
 import { moodColors } from "@/lib/blobertMood";
 import { BlobertArms } from "./BlobertArms";
 import { BlobertBody } from "./BlobertBody";
@@ -11,10 +11,12 @@ import { BlobertMouth } from "./BlobertMouth";
 type BlobertProps = {
   mood: BlobertMood;
   stage: AnimationStage;
+  activeField?: SignupFieldId;
+  gaze: { x: number; y: number };
   children?: React.ReactNode;
 };
 
-export function Blobert({ mood, stage, children }: BlobertProps) {
+export function Blobert({ mood, stage, activeField, gaze, children }: BlobertProps) {
   const bodyColor = moodColors[mood];
   const isChewing = stage === "chewing" || stage === "digesting";
 
@@ -33,9 +35,9 @@ export function Blobert({ mood, stage, children }: BlobertProps) {
       aria-label="Blobert the signup monster"
       role="img"
     >
-      <BlobertArms mood={mood} stage={stage} />
+      <BlobertArms mood={mood} stage={stage} activeField={activeField} />
       <BlobertBody color={bodyColor} stage={stage} />
-      <BlobertEyes mood={mood} stage={stage} />
+      <BlobertEyes mood={mood} stage={stage} gaze={gaze} />
       <BlobertMouth stage={stage}>{children}</BlobertMouth>
       <div className="absolute bottom-4 left-[28%] h-12 w-16 rounded-b-full bg-[#7b3cff] shadow-lg" />
       <div className="absolute bottom-4 right-[28%] h-12 w-16 rounded-b-full bg-[#7b3cff] shadow-lg" />

@@ -5,6 +5,7 @@ import { Blobert } from "@/components/Blobert/Blobert";
 import { BlobertParticles } from "@/components/Blobert/BlobertParticles";
 import { DigestTrail } from "@/components/animations/DigestTrail";
 import { FlyingInput } from "@/components/animations/FlyingInput";
+import { digestLines } from "@/data/roasts";
 import { signupFields } from "@/data/fieldRules";
 import { createJudgment, maskPassword } from "@/lib/scoring";
 import { validateField } from "@/lib/validation";
@@ -41,11 +42,12 @@ export function SignupController() {
   const [mood, setMood] = useState<BlobertMood>("hungry");
   const [judgments, setJudgments] = useState<Judgment[]>([]);
   const [flyingText, setFlyingText] = useState("");
+  const [gaze, setGaze] = useState({ x: 0, y: 0 });
 
   const currentField = signupFields[currentIndex];
   const completed = judgments.map((judgment) => judgment.fieldId);
   const isComplete = currentIndex >= signupFields.length;
-  const latestJudgment = judgments.at(-1);
+  const digestLine = digestLines[(currentIndex + value.length) % digestLines.length];
 
   const speech = useMemo(() => {
     if (isComplete) {
@@ -60,14 +62,25 @@ export function SignupController() {
       return currentField.prompt;
     }
 
-    return stageCopy[stage];
-  }, [currentField?.prompt, error, isComplete, stage]);
+    return stage === "digesting" ? digestLine : stageCopy[stage];
+  }, [currentField?.prompt, digestLine, error, isComplete, stage]);
 
   function handleChange(nextValue: string) {
     setValue(nextValue);
     setError(null);
     setStage(nextValue ? "typing" : "idle");
-    setMood(nextValue ? "curious" : "hungry");
+    setMood(getTypingMood(nextValue, currentField?.id));
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
+    const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
+
+    setGaze({
+      x: Math.max(-1, Math.min(1, x)),
+      y: Math.max(-1, Math.min(1, y)),
+    });
   }
 
   function handleSubmit() {
@@ -134,6 +147,7 @@ export function SignupController() {
     setMood("hungry");
     setJudgments([]);
     setFlyingText("");
+    setGaze({ x: 0, y: 0 });
   }
 
   return (
@@ -144,8 +158,12 @@ export function SignupController() {
           {speech}
           <span className="absolute bottom-[-14px] left-1/2 h-7 w-7 -translate-x-1/2 rotate-45 border-b-4 border-r-4 border-white bg-white" />
         </div>
-        <div className="relative">
-          <Blobert mood={mood} stage={stage}>
+        <div
+          className="relative"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={() => setGaze({ x: 0, y: 0 })}
+        >
+          <Blobert mood={mood} stage={stage} activeField={currentField?.id} gaze={gaze}>
             {!isComplete && currentField ? (
               <MouthInput
                 field={currentField}
@@ -165,7 +183,6 @@ export function SignupController() {
 
       <aside className="mx-auto flex w-full max-w-[420px] flex-col gap-3 lg:mx-0">
         {isComplete ? <FinalResult judgments={judgments} onReset={handleReset} /> : null}
-        {latestJudgment && !isComplete ? <JudgmentCard judgment={latestJudgment} /> : null}
         <div className="grid gap-3">
           {judgments
             .slice()
@@ -177,4 +194,24 @@ export function SignupController() {
       </aside>
     </section>
   );
+}
+
+function getTypingMood(value: string, fieldId?: SignupFieldId): BlobertMood {
+  if (!value) {
+    return "hungry";
+  }
+
+  if (fieldId === "password" && value.length < 6) {
+    return "suspicious";
+  }
+
+  if (fieldId === "username" && /^(.)\1+$/.test(value)) {
+    return "disgusted";
+  }
+
+  if (fieldId === "email" && !value.includes("@")) {
+    return "suspicious";
+  }
+
+  return "curious";
 }
