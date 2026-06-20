@@ -39,6 +39,8 @@ export type Judgment = {
   score: number;
   message: string;
   mood: BlobertMood;
+  severity: "good" | "neutral" | "bad" | "horrific";
+  detail: string;
 };
 
 export type SignupValues = Partial<Record<SignupFieldId, string>>;
