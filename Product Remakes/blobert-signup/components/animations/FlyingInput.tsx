@@ -13,12 +13,19 @@ export function FlyingInput({ text }: FlyingInputProps) {
 
   return (
     <motion.div
-      className="pointer-events-none absolute left-1/2 top-[170px] z-40 max-w-[220px] -translate-x-1/2 truncate rounded-full bg-lime px-5 py-3 text-sm font-black text-ink shadow-2xl"
-      initial={{ opacity: 0, y: -90, scale: 0.8 }}
-      animate={{ opacity: [0, 1, 1, 0], y: [0, 40, 75, 95], scale: [0.8, 1.08, 0.92, 0.2] }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      className="pointer-events-none absolute left-1/2 top-[120px] z-40 flex h-20 w-20 -translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-lime text-center text-xs font-black text-ink shadow-2xl"
+      initial={{ opacity: 0, y: -70, scale: 0.5, rotate: -18 }}
+      animate={{
+        opacity: [0, 1, 1, 0],
+        y: [0, 45, 110, 150],
+        scale: [0.5, 1.1, 0.9, 0.12],
+        rotate: [-18, 12, -8, 20],
+      }}
+      transition={{ duration: 0.78, ease: "easeIn" }}
     >
-      {text}
+      <span className="max-w-[54px] truncate">{text}</span>
+      <span className="absolute left-3 top-3 h-3 w-3 rounded-full bg-white/80" />
+      <span className="absolute bottom-3 right-3 h-2 w-2 rounded-full bg-ink/25" />
     </motion.div>
   );
 }
